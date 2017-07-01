@@ -18,7 +18,7 @@ class Plane extends Actor with ActorLogging {
 
   private var climbRate = 0f
 
-  private val altimeter = context.actorOf(Props[Altimeter], "altimeter")
+  private val altimeter = context.actorOf(Props(Altimeter()), "altimeter")
 
   override def preStart(): Unit = {
     altimeter ! Register(self)

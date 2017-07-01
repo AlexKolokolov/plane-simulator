@@ -6,7 +6,9 @@ import scala.concurrent.duration._
 /**
   * Created by kolokolov on 6/30/17.
   */
-class Altimeter extends Actor with EventReporter {
+class Altimeter extends Actor {
+
+  this: EventReporter =>
 
   import Altimeter._
   implicit val ec = context.system.dispatcher
@@ -39,4 +41,5 @@ object Altimeter {
   case object Tick
   case class ClimbRateChanged(newClimbRate: Float)
   case class AltitudeChanged(newAltitude: Float)
+  def apply() = new Altimeter with ProductionEventReporter
 }
