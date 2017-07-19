@@ -1,9 +1,9 @@
 package org.kolokolov.plane
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.pattern.ask
+import akka.actor.{Actor, ActorLogging, Props}
 import akka.util.Timeout
 import org.kolokolov.plane.EventReporter.Register
+import org.kolokolov.plane.flightcrew.{Pilot,CoPilot}
 
 import scala.concurrent.duration._
 
@@ -16,12 +16,18 @@ class Plane extends Actor with ActorLogging {
   import Altimeter._
   implicit val timeout = Timeout(5 seconds)
 
+  val config = context.system.settings.config
+
   private var climbRate = 0f
 
   private val altimeter = context.actorOf(Props(Altimeter()), "altimeter")
 
   override def preStart(): Unit = {
     altimeter ! Register(self)
+    val pilotName = config.getString("org.kolokolov.plane.flightcrew.pilotName")
+    val copilotName = config.getString("org.kolokolov.plane.flightcrew.copilotName")
+    context.actorOf(Props[Pilot], pilotName)
+    context.actorOf(Props[CoPilot], copilotName)
   }
 
   def changeClimbRate(value: Float): Unit = {

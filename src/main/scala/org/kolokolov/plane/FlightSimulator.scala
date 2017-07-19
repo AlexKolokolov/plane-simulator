@@ -2,30 +2,24 @@ package org.kolokolov.plane
 
 import akka.actor.{ActorSystem, Props}
 import scala.concurrent.duration._
+import org.kolokolov.plane.flightcrew._
 
 /**
   * Created by kolokolov on 6/30/17.
   */
 object FlightSimulator extends App {
 
-  val actorSystem = ActorSystem("system")
+  val actorSystem = ActorSystem("PlaneSimulation")
   implicit val ec = actorSystem.dispatcher
 
   import Plane._
-  import EventReporter._
+  import Pilot._
 
-  val plane1 = actorSystem.actorOf(Props[Plane],"plane1")
-  val plane2 = actorSystem.actorOf(Props[Plane],"plane2")
+  val plane1 = actorSystem.actorOf(Props[Plane],"A380")
   val flightDispatcher = actorSystem.actorOf(Props[FlightDispatcher],"dispatcher")
-  val altimeters = actorSystem.actorSelection("/user/*/altimeter")
-  altimeters ! Register(flightDispatcher)
 
   actorSystem.scheduler.scheduleOnce(2 seconds) {
     plane1 ! StickBack(0.12f)
-  }
-
-  actorSystem.scheduler.scheduleOnce(3 seconds) {
-    plane2 ! StickBack(0.15f)
   }
 
   actorSystem.scheduler.scheduleOnce(4 seconds) {
@@ -33,7 +27,7 @@ object FlightSimulator extends App {
   }
 
   actorSystem.scheduler.scheduleOnce(5 seconds) {
-    plane2 ! StickForward(0.2f)
+    actorSystem.actorSelection(plane1.path.child("John")) ! TakeControls
   }
 
   actorSystem.scheduler.scheduleOnce(6 seconds) {

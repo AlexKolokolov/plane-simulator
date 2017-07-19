@@ -32,6 +32,7 @@ class Altimeter extends Actor {
   def tuneAltitude: Receive = {
     case Tick => updateAltitude()
     case ClimbRateChanged(newClimbRate) => climbRate = newClimbRate
+    case CurrentAltitudeRequest => sender ! CurrentAltitude(altitude)
   }
 
   def receive = tuneAltitude orElse manageListeners
@@ -39,6 +40,8 @@ class Altimeter extends Actor {
 
 object Altimeter {
   case object Tick
+  case object CurrentAltitudeRequest
+  case class CurrentAltitude(altitude: Float)
   case class ClimbRateChanged(newClimbRate: Float)
   case class AltitudeChanged(newAltitude: Float)
   def apply() = new Altimeter with ProductionEventReporter
