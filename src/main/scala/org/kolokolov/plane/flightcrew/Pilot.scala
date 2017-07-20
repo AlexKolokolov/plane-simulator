@@ -10,6 +10,7 @@ object Pilot {
   case object ReportAltitude
   case class PilotReport(report: String)
   case object TakeControls
+  case object Drink
 }
 
 class Pilot extends Actor {
@@ -22,6 +23,12 @@ class Pilot extends Actor {
 
   val altimeter = context.actorSelection("../altimeter")
 
+  override def postRestart(reason: Throwable): Unit = {
+    val dispatcher = context.actorSelection("/user/dispatcher")
+    val report = s"I have resurrected after the death cosed by: ${reason.getMessage}"
+    dispatcher ! PilotReport(report)
+  }
+
   def receive: Receive = {
     case ReportAltitude =>
       val currentSender = sender
@@ -33,6 +40,7 @@ class Pilot extends Actor {
         currentSender ! PilotReport(report)
       }
     }
+    case Drink => throw new RuntimeException("I am dead drunk!")
   }
 }
 

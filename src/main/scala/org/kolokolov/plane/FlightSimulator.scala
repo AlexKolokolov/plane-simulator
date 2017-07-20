@@ -17,9 +17,15 @@ object FlightSimulator extends App {
 
   val plane1 = actorSystem.actorOf(Props[Plane],"A380")
   val flightDispatcher = actorSystem.actorOf(Props[FlightDispatcher],"dispatcher")
+  val pilot1 = actorSystem.actorSelection(plane1.path.child("Harry"))
 
   actorSystem.scheduler.scheduleOnce(2 seconds) {
     plane1 ! StickBack(0.12f)
+  }
+
+  actorSystem.scheduler.scheduleOnce(3 seconds) {
+    pilot1 ! Drink
+//    plane1 ! Missile
   }
 
   actorSystem.scheduler.scheduleOnce(4 seconds) {
